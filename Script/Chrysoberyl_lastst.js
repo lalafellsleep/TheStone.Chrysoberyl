@@ -48,6 +48,18 @@
 			"Smn":"DPS",
 			"Rdm":"DPS"
 		},
+		"jobclass":{
+			"Gla":"PLD",
+			"Gld":"PLD",
+			"Mrd":"WAR",
+			"Cnj":"WHM",
+			"Pgl":"MNK",
+			"Lnc":"DRG",
+			"Rog":"NIN",
+			"Arc":"BRD",
+			"Thm":"BLM",
+			"Acn":"SMN"
+		},
 		"sortkey":{
 			"dps":"damage",
 			"encdps":"damage",
@@ -319,9 +331,12 @@
 	};
 	var overlaydata = function(e)
 	{
+		var start = window.performance.now();
+		
 		if(e.detail.Encounter.CurrentZoneRaw != 0)
 			ACTColumnAdder = !0;
 		lastCombat = e.detail;
+
 		lastCombat.getCombatantByDisplayName = function(s)
 		{
 			for(var i in this.Combatant)
@@ -334,8 +349,8 @@
 
 		for(var i in lastCombat.Encounter)
 		{
-			if(args.delete.indexOf(i) > -1)
-				delete lastCombat.Encounter[i];
+			//if(args.delete.indexOf(i) > -1)
+			//	delete lastCombat.Encounter[i];
 			if(args.double.indexOf(i) > -1)
 				lastCombat.Encounter[i] = parseFloat(lastCombat.Encounter[i].replace(replaceRgx, "0.0").replace(/%/, ""));
 			if(args.decimal.indexOf(i) > -1)
@@ -348,8 +363,8 @@
 		{
 			for(var f in lastCombat.Combatant[i])
 			{
-				if(args.delete.indexOf(f) > -1)
-					delete lastCombat.Combatant[i][f];
+				//if(args.delete.indexOf(f) > -1)
+				//	delete lastCombat.Combatant[i][f];
 				if(args.double.indexOf(f) > -1)
 					lastCombat.Combatant[i][f] = parseFloat(lastCombat.Combatant[i][f].replace(replaceRgx, "0").replace(/%/, ""));
 				if(args.decimal.indexOf(f) > -1)
@@ -357,15 +372,18 @@
 				if(args.string.indexOf(f) > -1)
 					lastCombat.Combatant[i][f] = parseInt(lastCombat.Combatant[i][f].replace(/\.|,/, "").replace(replaceRgx, "0"));
 			}
+
 			if(lastCombat.Combatant[i].name == "YOU")
 				lastCombat.Combatant[i].displayName = lastCombat.Encounter.CurrentRealUserName;
 			else
 				lastCombat.Combatant[i].displayName = lastCombat.Combatant[i].name;
+
 			lastCombat.Combatant[i].isPet = !1;
 			lastCombat.Combatant[i].hasPet = !1;
 			lastCombat.Combatant[i].hasOwner = !1;
 			// cleaveore compatibility
 			lastCombat.Combatant[i].effectiveHeal = lastCombat.Combatant[i].healed - lastCombat.Combatant[i].overHeal;
+
 			if(nickRgx.test(lastCombat.Combatant[i].name))
 			{
 				lastCombat.Combatant[i].hasOwner = !0;
@@ -414,6 +432,11 @@
 			lastCombat.Combatant[i].maxhealstr = lastCombat.Combatant[i].maxheal.split('-')[0];
 			lastCombat.Combatant[i].maxhealval = lastCombat.Combatant[i].MAXHEAL;
 
+			if(ffxivDict.jobclass[lastCombat.Combatant[i].Job] != undefined)
+				lastCombat.Combatant[i].Class = ffxivDict.jobclass[lastCombat.Combatant[i].Job];
+			else
+				lastCombat.Combatant[i].Class = lastCombat.Combatant[i].Job.toUpperCase();
+
 			if(typeof lastCombat.Combatant[i].merged === "object")
 			{
 				lastCombat.Combatant[i].recalculated = {
@@ -434,15 +457,23 @@
 					"DirectHit%": lastCombat.Combatant[i].merged.DirectHitCount / lastCombat.Combatant[i].merged.swings * 100,
 					"CritDirectHit%": lastCombat.Combatant[i].merged.CritDirectHitCount / lastCombat.Combatant[i].merged.swings * 100
 				};
+
 				lastCombat.Combatant[i].recalculated.DPS = Math.round(lastCombat.Combatant[i].recalculated.dps);
 				lastCombat.Combatant[i].recalculated.HPS = Math.round(lastCombat.Combatant[i].recalculated.hps);
 				lastCombat.Combatant[i].recalculated.ENCDPS = Math.round(lastCombat.Combatant[i].recalculated.encdps);
 				lastCombat.Combatant[i].recalculated.ENCHPS = Math.round(lastCombat.Combatant[i].recalculated.enchps);
+
 				for(var x in lastCombat.Combatant[i].recalculated)
 				{
 					if(isNaN(lastCombat.Combatant[i].recalculated[x]))
 						lastCombat.Combatant[i].recalculated[x] = 0;
 				}
+
+				if(isNaN(lastCombat.Combatant[i].maxhitval))
+					lastCombat.Combatant[i].maxhitval = 0;
+
+				if(isNaN(lastCombat.Combatant[i].maxhealval))
+					lastCombat.Combatant[i].maxhealval = 0;
 			}
 
 			lastCombat.Combatant[i].get = function(key)
@@ -476,6 +507,9 @@
 		lastCombat.summonerMerge = petMerge;
 		lastCombat.sortkey = sortkey;
 		lastCombat.maxValue = 0;
+		lastCombat.sortAsc = [];
+		lastCombat.sortDesc = [];
+
 		lastCombat.resort = function(sortkey)
 		{
 			lastCombat.maxValue = 0;
@@ -485,11 +519,31 @@
 				lastCombat.sortkey = sortkey;
 
 			for(var i in lastCombat.Combatant)
+			{
 				if(lastCombat.Combatant[i].get(lastCombat.sortkey) > lastCombat.maxValue)
 					lastCombat.maxValue = lastCombat.Combatant[i].get(lastCombat.sortkey);
+			}
+
+			var idx = 0;
+			for(var i in lastCombat.Combatant)
+			{
+				lastCombat.sortAsc[idx] = {"value":lastCombat.Combatant[i].get(lastCombat.sortkey), "displayName":lastCombat.Combatant[i].displayName};
+				lastCombat.sortDesc[idx++] = {"value":lastCombat.Combatant[i].get(lastCombat.sortkey), "displayName":lastCombat.Combatant[i].displayName};
+			}
+
+			lastCombat.sortAsc.sort(function(a, b) { return a.value - b.value; });
+			lastCombat.sortDesc.sort(function(a, b) { return b.value - a.value; });
+		};
+		lastCombat.sortkeyChange = function(sortkey)
+		{
+			this.resort(sortkey);
 		};
 
 		lastCombat.resort(sortkey);
+		var end = window.performance.now();
+		var diff = end - start;
+
+		lastCombat.runTime = diff;
 		console.warn(lastCombat);
 	};
 	try

@@ -47,8 +47,27 @@
 			"Acn":"DPS",
 			"Smn":"DPS",
 			"Rdm":"DPS"
+		},
+		"sortkey":{
+			"dps":"damage",
+			"encdps":"damage",
+			"hps":"healed",
+			"endhps":"healed",
+			"maxhit":"maxhitval",
+			"maxheal":"maxhealval",
+			"overheal%":"overHeal"
 		}
 	};
+	var args = {
+		"delete":["NAME3", "NAME4", "NAME5", "NAME6", "NAME7", "NAME8", "NAME9", "NAME10", "NAME11", "NAME12", "NAME13", "NAME14", "NAME15", "DAMAGE-b", "DAMAGE-k", "DAMAGE-m", "ENCDPS-k", "ENCDPS-m", "ENCHPS-k", "ENCHPS-m", "crittypes", "t", "n", "threatdelta", "threatstr", "DPS-k", "DPS-m", "TOHIT", "damage-b", "damage-m", "MAXHITWARD", "MAXHEALWARD", "maxhealward"],
+		"double":["Last10DPS", "Last30DPS", "Last60DPS", "Last180DPS", "encdps", "enchps", "tohit", "dps", "BlockPct", "DirectHitPct", "OverHealPct", "ParryPct", "crithit%", "damage%", "critheal%", "healed%", "IncToHit"],
+		"decimal":["CritDirectHitCount", "CritDirectHitPct", "DPS", "DURATION", "DirectHitCount", "ENCDPS", "ENCHPS", "crithits", "hits", "kills", "swings", "overHeal", "powerdrain", "powerheal", "damage", "critheals", "absorbHeal", "damageShield", "damagetaken", "heals", "healstaken", "hitfailed", "misses", "cures", "healed", "deaths"],
+		"string":["MAXHIT", "MAXHEAL"],
+		"merged":["damage", "hits", "swings", "misses", "crithits", "DirectHitCount", "CritDirectHitCount", "damagetaken", "heals", "healed", "critheals", "healstaken", "damageShield", "overHeal", "absorbHeal", "effectiveHeal"]
+	};
+	var replaceRgx = /(---|--|NaN|Infinity)/im;
+	var nickRgx = /\s\((.*?)\)/im;
+	var petMerge = !0;
 
 	var qs = function(name)
 	{
@@ -68,40 +87,6 @@
 			}
 		}
 		return ret;
-	};
-	var queryString = function()
-	{
-		var href = window.location.href, key, value;
-		var params = href.slice(href.indexOf('?') + 1).split('&');
-		var qs = [];
-
-		for (i=0; i<params.length; i++)
-		{
-			key = params[i].split('=');
-			value = key[1];
-			key = key[0];
-			qs.push(key);
-			qs[key] = value;
-		}
-
-		return qs;
-	};
-	var takeScreenShot = function()
-	{
-		switch(overlayType)
-		{
-			case 0:
-
-				break;
-			case 1:
-				var overlay = window.OverlayPluginApi.overlayName;
-				window.OverlayPluginApi.takeScreenShot(overlay);
-				break;
-		}
-	};
-	var endEncounter = function()
-	{
-
 	};
 	var ACTWebSocketConnect = function(url, type)
 	{
@@ -299,17 +284,44 @@
 			}
 		});
 	};
+	var queryString = function()
+	{
+		var href = window.location.href, key, value;
+		var params = href.slice(href.indexOf('?') + 1).split('&');
+		var qs = [];
+
+		for (i=0; i<params.length; i++)
+		{
+			key = params[i].split('=');
+			value = key[1];
+			key = key[0];
+			qs.push(key);
+			qs[key] = value;
+		}
+
+		return qs;
+	};
+	var takeScreenShot = function()
+	{
+		switch(overlayType)
+		{
+			case 0:
+
+				break;
+			case 1:
+				var overlay = window.OverlayPluginApi.overlayName;
+				window.OverlayPluginApi.takeScreenShot(overlay);
+				break;
+		}
+	};
+	var endEncounter = function()
+	{
+	};
 	var overlaydata = function(e)
 	{
-		var timer = new Date();
-		var replaceRgx = /(---|--|NaN|Infinity)/im;
-		var nickRgx = /\s\((.*?)\)/im;
-
 		if(e.detail.Encounter.CurrentZoneRaw != 0)
 			ACTColumnAdder = !0;
-
 		lastCombat = e.detail;
-
 		lastCombat.getCombatantByDisplayName = function(s)
 		{
 			for(var i in this.Combatant)
@@ -317,80 +329,60 @@
 				if(this.Combatant[i].displayName == s)
 					return this.Combatant[i];
 			}
-
 			return this.Combatant[s];
 		};
-		
-		var deleteArgs = ["NAME3", "NAME4", "NAME5", "NAME6", "NAME7", "NAME8", "NAME9", "NAME10", "NAME11", "NAME12", "NAME13", "NAME14", "NAME15", "DAMAGE-b", "DAMAGE-k", "DAMAGE-m", "ENCDPS-k", "ENCDPS-m", "ENCHPS-k", "ENCHPS-m", "crittypes", "t", "n", "threatdelta", "threatstr", "DPS-k", "DPS-m", "TOHIT", "damage-b", "damage-m", "MAXHITWARD", "MAXHEALWARD", "maxhealward"];
-
-		var doubleArgs = ["Last10DPS", "Last30DPS", "Last60DPS", "Last180DPS", "encdps", "enchps", "tohit", "dps", "BlockPct", "DirectHitPct", "OverHealPct", "ParryPct", "crithit%", "damage%", "critheal%", "healed%", "IncToHit"];
-
-		var decimalArgs = ["CritDirectHitCount", "CritDirectHitPct", "DPS", "DURATION", "DirectHitCount", "ENCDPS", "ENCHPS", "crithits", "hits", "kills", "swings", "overHeal", "powerdrain", "powerheal", "damage", "critheals", "absorbHeal", "damageShield", "damagetaken", "heals", "healstaken", "hitfailed", "misses", "cures", "healed", "deaths"];
-
-		var strToDecimalArgs = ["MAXHIT", "MAXHEAL"];
 
 		for(var i in lastCombat.Encounter)
 		{
-			if(deleteArgs.indexOf(i) > -1)
+			if(args.delete.indexOf(i) > -1)
 				delete lastCombat.Encounter[i];
-			if(doubleArgs.indexOf(i) > -1)
+			if(args.double.indexOf(i) > -1)
 				lastCombat.Encounter[i] = parseFloat(lastCombat.Encounter[i].replace(replaceRgx, "0.0").replace(/%/, ""));
-			if(decimalArgs.indexOf(i) > -1)
+			if(args.decimal.indexOf(i) > -1)
 				lastCombat.Encounter[i] = parseInt(lastCombat.Encounter[i].replace(replaceRgx, "0"));
-			if(strToDecimalArgs.indexOf(f) > -1)
+			if(args.string.indexOf(f) > -1)
 				lastCombat.Combatant[i][f] = parseInt(lastCombat.Combatant[i][f].replace(/\.|,/, "").replace(replaceRgx, "0"));
 		}
-
+		
 		for(var i in lastCombat.Combatant)
 		{
 			for(var f in lastCombat.Combatant[i])
 			{
-				if(deleteArgs.indexOf(f) > -1)
+				if(args.delete.indexOf(f) > -1)
 					delete lastCombat.Combatant[i][f];
-				if(doubleArgs.indexOf(f) > -1)
+				if(args.double.indexOf(f) > -1)
 					lastCombat.Combatant[i][f] = parseFloat(lastCombat.Combatant[i][f].replace(replaceRgx, "0").replace(/%/, ""));
-				if(decimalArgs.indexOf(f) > -1)
+				if(args.decimal.indexOf(f) > -1)
 					lastCombat.Combatant[i][f] = parseInt(lastCombat.Combatant[i][f].replace(replaceRgx, "0"));
-				if(strToDecimalArgs.indexOf(f) > -1)
+				if(args.string.indexOf(f) > -1)
 					lastCombat.Combatant[i][f] = parseInt(lastCombat.Combatant[i][f].replace(/\.|,/, "").replace(replaceRgx, "0"));
 			}
-
 			if(lastCombat.Combatant[i].name == "YOU")
-				lastCombat.Combatant[i]["displayName"] = lastCombat.Encounter.CurrentRealUserName;
+				lastCombat.Combatant[i].displayName = lastCombat.Encounter.CurrentRealUserName;
 			else
-				lastCombat.Combatant[i]["displayName"] = lastCombat.Combatant[i].name;
-
-			lastCombat.Combatant[i]["isPet"] = !1;
-			lastCombat.Combatant[i]["hasPet"] = !1;
-			lastCombat.Combatant[i]["hasOwner"] = !1;
-			lastCombat.Combatant[i]["pets"] = [];
-			lastCombat.Combatant[i]["merged"] = [];
-
+				lastCombat.Combatant[i].displayName = lastCombat.Combatant[i].name;
+			lastCombat.Combatant[i].isPet = !1;
+			lastCombat.Combatant[i].hasPet = !1;
+			lastCombat.Combatant[i].hasOwner = !1;
 			// cleaveore compatibility
-			lastCombat.Combatant[i]["effectiveHeal"] = lastCombat.Combatant[i].healed - lastCombat.Combatant[i].overHeal;
-
-			lastCombat.Combatant[i].get = function(key)
-			{
-				if(this.merged[key] == undefined)
-					return this[key];
-				else
-					return this.merged[key];
-			}
-
+			lastCombat.Combatant[i].effectiveHeal = lastCombat.Combatant[i].healed - lastCombat.Combatant[i].overHeal;
 			if(nickRgx.test(lastCombat.Combatant[i].name))
 			{
 				lastCombat.Combatant[i].hasOwner = !0;
-				lastCombat.Combatant[i]["owner"] = lastCombat.Combatant[i].name.match(nickRgx)[1];
+				lastCombat.Combatant[i].owner = lastCombat.Combatant[i].name.match(nickRgx)[1];
 				lastCombat.Combatant[i].displayName = lastCombat.Combatant[i].name.replace(nickRgx, "");
 			}
 		}
 
-		var mergeValues = ["damage", "hits", "swings", "misses", "crithits", "DirectHitCount", "CritDirectHitCount", "damagetaken", "heals", "healed", "critheals", "healstaken", "damageShield", "overHeal", "absorbHeal", "effectiveHeal"];
+		lastCombat.DURATION = lastCombat.Encounter.DURATION;
+		lastCombat.duration = lastCombat.Encounter.duration;
+		lastCombat.raw = function() { return this; };
 
 		for(var i in lastCombat.Combatant)
 		{
 			if(lastCombat.Combatant[i].hasOwner)
 			{
+				lastCombat.getCombatantByDisplayName(lastCombat.Combatant[i].owner).pets = [];
 				// pettype
 				for(var r in ffxivDict.pets)
 				{
@@ -399,39 +391,107 @@
 						if(ffxivDict.pets[r][rgx].test(lastCombat.Combatant[i].displayName))
 						{
 							lastCombat.Combatant[i].isPet = !0;
-							lastCombat.Combatant[i]["petType"] = r;
+							lastCombat.Combatant[i].petType = r;
 							lastCombat.Combatant[i].Job = lastCombat.Combatant[i].petType;
 							if(lastCombat.getCombatantByDisplayName(lastCombat.Combatant[i].owner) != undefined)
 								lastCombat.getCombatantByDisplayName(lastCombat.Combatant[i].owner).pets.push(lastCombat.Combatant[i].displayName);
 						}
 					}
 				}
-				
 				if(lastCombat.Combatant[i].isPet == !0)
 				{
-					for(var x in mergeValues)
+					lastCombat.getCombatantByDisplayName(lastCombat.Combatant[i].owner).merged = {};
+					for(var x in args.merged)
 					{
-						lastCombat.getCombatantByDisplayName(lastCombat.Combatant[i].owner).merged[mergeValues[x]] = lastCombat.Combatant[i][mergeValues[x]] + lastCombat.getCombatantByDisplayName(lastCombat.Combatant[i].owner)[mergeValues[x]];
+						lastCombat.getCombatantByDisplayName(lastCombat.Combatant[i].owner).merged[args.merged[x]] = lastCombat.Combatant[i][args.merged[x]] + lastCombat.getCombatantByDisplayName(lastCombat.Combatant[i].owner)[args.merged[x]];
 					}
 				}
 			}
-			
-			lastCombat.Combatant[i]["role"] = ffxivDict.role[lastCombat.Combatant[i].Job];
-		}
 
+			lastCombat.Combatant[i].role = ffxivDict.role[lastCombat.Combatant[i].Job];
+			lastCombat.Combatant[i].maxhitstr = lastCombat.Combatant[i].maxhit.split('-')[0];
+			lastCombat.Combatant[i].maxhitval = lastCombat.Combatant[i].MAXHIT;
+			lastCombat.Combatant[i].maxhealstr = lastCombat.Combatant[i].maxheal.split('-')[0];
+			lastCombat.Combatant[i].maxhealval = lastCombat.Combatant[i].MAXHEAL;
+
+			if(typeof lastCombat.Combatant[i].merged === "object")
+			{
+				lastCombat.Combatant[i].recalculated = {
+					"dps": lastCombat.Combatant[i].merged.damage / lastCombat.Combatant[i].DURATION,
+					"hps": lastCombat.Combatant[i].merged.healed / lastCombat.Combatant[i].DURATION,
+					"encdps": lastCombat.Combatant[i].merged.damage / lastCombat.Encounter.DURATION,
+					"enchps": lastCombat.Combatant[i].merged.healed / lastCombat.Encounter.DURATION,
+					"DPS": 0,
+					"HPS": 0,
+					"ENCDPS": 0,
+					"ENCHPS": 0,
+					"tohit": lastCombat.Combatant[i].merged.hits / lastCombat.Combatant[i].merged.swings * 100,
+					"damage%": lastCombat.Combatant[i].merged.damage / lastCombat.Encounter.damage * 100,
+					"healed%": lastCombat.Combatant[i].merged.healed / lastCombat.Encounter.healed * 100,
+					"crithit%": lastCombat.Combatant[i].merged.crithits / lastCombat.Combatant[i].merged.swings * 100,
+					"overHeal%": lastCombat.Combatant[i].merged.overHeal / lastCombat.Combatant[i].merged.healed * 100,
+					"critheal%": lastCombat.Combatant[i].merged.critheals / lastCombat.Combatant[i].merged.heals * 100,
+					"DirectHit%": lastCombat.Combatant[i].merged.DirectHitCount / lastCombat.Combatant[i].merged.swings * 100,
+					"CritDirectHit%": lastCombat.Combatant[i].merged.CritDirectHitCount / lastCombat.Combatant[i].merged.swings * 100
+				};
+				lastCombat.Combatant[i].recalculated.DPS = Math.round(lastCombat.Combatant[i].recalculated.dps);
+				lastCombat.Combatant[i].recalculated.HPS = Math.round(lastCombat.Combatant[i].recalculated.hps);
+				lastCombat.Combatant[i].recalculated.ENCDPS = Math.round(lastCombat.Combatant[i].recalculated.encdps);
+				lastCombat.Combatant[i].recalculated.ENCHPS = Math.round(lastCombat.Combatant[i].recalculated.enchps);
+				for(var x in lastCombat.Combatant[i].recalculated)
+				{
+					if(isNaN(lastCombat.Combatant[i].recalculated[x]))
+						lastCombat.Combatant[i].recalculated[x] = 0;
+				}
+			}
+
+			lastCombat.Combatant[i].get = function(key)
+			{
+				if(this.recalculated != undefined)
+					if(this.recalculated[key] != undefined)
+						return this.recalculated[key];
+
+				if(this.merged != undefined)
+					if(this.merged[key] != undefined)
+						return this.merged[key];
+				
+				return this[key];
+			}
+		}
 		if(sortkey !== undefined)
 		{
 
 		}
+		
+		lastCombat.persons = {};
+		for(var i in lastCombat.Combatant)
+		{
+			if(lastCombat.summonerMerge && lastCombat.Combatant[i].isPet) return;
+			lastCombat.persons[i] = function()
+			{
+				return lastCombat.getCombatantByDisplayName(lastCombat.Combatant[i].displayName);
+			}
+		}
 
+		lastCombat.summonerMerge = petMerge;
+		lastCombat.sortkey = sortkey;
+		lastCombat.maxValue = 0;
+		lastCombat.resort = function(sortkey)
+		{
+			lastCombat.maxValue = 0;
+			if(ffxivDict.sortkey[sortkey] != undefined)
+				lastCombat.sortkey = ffxivDict.sortkey[sortkey];
+			else
+				lastCombat.sortkey = sortkey;
+
+			for(var i in lastCombat.Combatant)
+				if(lastCombat.Combatant[i].get(lastCombat.sortkey) > lastCombat.maxValue)
+					lastCombat.maxValue = lastCombat.Combatant[i].get(lastCombat.sortkey);
+		};
+
+		lastCombat.resort(sortkey);
 		console.warn(lastCombat);
-		var n = new Date();
-		var elepse = (n.getTime() - timer.getTime());
-
-		if(elepse > 2)
-			console.warn("Re-Calculate Combatants " + elepse + " msec");
 	};
-
 	try
 	{
 		if(window.OverlayPluginApi)
@@ -451,7 +511,6 @@
 	{
 		console.error(ex);
 	}
-
 	switch(overlayType)
 	{
 		case 1:

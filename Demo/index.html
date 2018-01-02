@@ -82,7 +82,7 @@
 						$person.css("top", idx++ * height + "px");
 	
 						$person.find(".data").html("");
-						$person.find(".data").append("<span style=\"float:left;\" class=\"JOB " + combat.Job + me +" cname\">" + combat.displayName + "</span>");
+						$person.find(".data").append("<span style=\"float:left;\" class=\"JOB " + combat.Job + me +" cname\">" + combat.name + "</span>");
 	
 						for(var i in snapshots[v].rows)
 						{
@@ -104,6 +104,7 @@
 				$("#Capture").click(function()
 				{
 					html2canvas(document.querySelector("#captureElement")).then(canvas => $("#captured").html(canvas));
+					$("#resizer").css("display", "none");
 					$(".cname").css("display", "none");
 					$(".cme").css("display", "inline-block");
 					setTimeout(function()
@@ -116,6 +117,7 @@
 						$("#captured").fadeIn(500);
 						setTimeout(function()
 						{ 
+							$("#resizer").css("display", "block");
 							$(".cname").css("display", "inline-block");
 							$(".cme").css("display", "inline-block");
 							$("#captureSaveMsg").fadeOut(500);
@@ -149,9 +151,9 @@
 			#encounter_name {position:absolute; left:11px; top:2px; font-size:15px; color:#FA0; font-weight:bold;}
 			#duration {position:absolute; left:11px; top:19px; font-size:15px;}
 
-			#RDPS {position:absolute; left:170px; top:3px; color:#FAA;}
+			#RDPS {position:absolute; left:170px; top:3px; color:#FA0;}
 			#RDPS::before {content:"RDPS: ";}
-			#RHPS {position:absolute; left:170px; top:19px; color:#AF7;}
+			#RHPS {position:absolute; left:170px; top:19px; color:#FA0;}
 			#RHPS::before {content:"RHPS: ";}
 
 			#STOP {width:26px; height:26px; top:8px; right:8px;  background:#FFF; -webkit-mask:url(img/stop.svg) no-repeat; -webkit-mask-size:100% 100%; position:absolute;}

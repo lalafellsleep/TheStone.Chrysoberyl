@@ -98,9 +98,10 @@
 			::-webkit-scrollbar-track {background:rgba(255,255,255,.1); border-radius: 3px;}
 			::-webkit-scrollbar-thumb {border-radius: 3px; background: rgba(255,255,255,0.5);}
 			::-webkit-scrollbar-thumb:window-inactive {background: rgba(255,255,255,0.25);}
-			#titlebar {background:rgba(0,0,0,0.8); color:#FFF; position:absolute; left:0px; top:0px; right:0px; height:42px; border-left:4px solid #FA0;}
+			#titlebar {background:rgba(0,0,0,0.8); color:#FFF; position:fixed; left:0px; top:0px; right:0px; height:42px; border-left:4px solid #FA0;}
 
-			#resizer {position:absolute; border:5px solid rgba(255,192,0,.25); border-left-color:transparent; border-top-color:transparent; right:0px; bottom:0px;}
+			#resizer {position:fixed; border:5px solid rgba(255,192,0,.25); border-left-color:transparent; border-top-color:transparent; right:0px; bottom:0px;}
+			#content {position:fixed; left:0px; top:43px; bottom:0px; right:0px; overflow:auto;}
 
 			#encounter_name {position:absolute; left:11px; top:2px; font-size:15px; color:#FA0; font-weight:bold;}
 			#duration {position:absolute; left:11px; top:19px; font-size:15px;}
@@ -111,7 +112,7 @@
 			#RHPS::before {content:"RHPS: ";}
 
 			#contentDPSheader,
-			#contentHPSheader {margin-top:43px; height:12px; background:#000; color:#FFF; position:relative; text-align:right;}
+			#contentHPSheader {margin-top:0px; height:12px; background:#000; color:#FFF; position:relative; text-align:right;}
 			#contentDPSheader>span,
 			#contentHPSheader>span {display:inline-block; padding-left:5px; padding-right:5px; text-align:center; line-height:11px; text-shadow:0px 0px 1px #000, 0px 0px 1px #000;  font-size:11px;}
 
@@ -143,7 +144,6 @@
 			#contentHPS>div[data-role=Tanker]>.bar::after {background-color:#AEF;}
 			#contentDPS>div[data-role=Healer]>.bar::after,
 			#contentHPS>div[data-role=Healer]>.bar::after {background-color:#EFA;}
-
 
 			#contentDPS>div[data-job=PLD]>.bar,
 			#contentHPS>div[data-job=PLD]>.bar {background-color:#7AA;}
@@ -218,10 +218,12 @@
 			<div id="RDPS">0</div>
 			<div id="RHPS">0</div>
 		</div>
-		<div id="contentDPSheader"></div>
-		<div id="contentDPS"></div>
-		<div id="contentHPSheader"></div>
-		<div id="contentHPS"></div>
+		<div id="content">
+			<div id="contentDPSheader"></div>
+			<div id="contentDPS"></div>
+			<div id="contentHPSheader"></div>
+			<div id="contentHPS"></div>
+		</div>
 		<div id="resizer"></div>
 	</body>
 </html>

@@ -64,7 +64,7 @@
 			"dps":"damage",
 			"encdps":"damage",
 			"hps":"healed",
-			"endhps":"healed",
+			"enchps":"healed",
 			"maxhit":"maxhitval",
 			"maxheal":"maxhealval",
 			"overheal%":"overHeal"
@@ -332,8 +332,8 @@
 	var overlaydata = function(e)
 	{
 		var start = window.performance.now();
-		
-		if(e.detail.Encounter.CurrentZoneRaw != 0)
+
+		if(e.detail.Encounter.CurrentRealUserName != undefined && e.detail.Encounter.CurrentZoneRaw != 0)
 			ACTColumnAdder = !0;
 		lastCombat = e.detail;
 
@@ -349,8 +349,8 @@
 
 		for(var i in lastCombat.Encounter)
 		{
-			//if(args.delete.indexOf(i) > -1)
-			//	delete lastCombat.Encounter[i];
+			if(args.delete.indexOf(i) > -1)
+				delete lastCombat.Encounter[i];
 			if(args.double.indexOf(i) > -1)
 				lastCombat.Encounter[i] = parseFloat(lastCombat.Encounter[i].replace(replaceRgx, "0.0").replace(/%/, ""));
 			if(args.decimal.indexOf(i) > -1)
@@ -363,8 +363,8 @@
 		{
 			for(var f in lastCombat.Combatant[i])
 			{
-				//if(args.delete.indexOf(f) > -1)
-				//	delete lastCombat.Combatant[i][f];
+				if(args.delete.indexOf(f) > -1)
+					delete lastCombat.Combatant[i][f];
 				if(args.double.indexOf(f) > -1)
 					lastCombat.Combatant[i][f] = parseFloat(lastCombat.Combatant[i][f].replace(replaceRgx, "0").replace(/%/, ""));
 				if(args.decimal.indexOf(f) > -1)
@@ -373,10 +373,24 @@
 					lastCombat.Combatant[i][f] = parseInt(lastCombat.Combatant[i][f].replace(/\.|,/, "").replace(replaceRgx, "0"));
 			}
 
-			if(lastCombat.Combatant[i].name == "YOU")
-				lastCombat.Combatant[i].displayName = lastCombat.Encounter.CurrentRealUserName;
+			if(ACTColumnAdder)
+			{
+				if(lastCombat.Combatant[i].name == "YOU")
+					lastCombat.Combatant[i].displayName = lastCombat.Encounter.CurrentRealUserName;
+				else
+					lastCombat.Combatant[i].displayName = lastCombat.Combatant[i].name;
+			}
+			else if(lastCombat.Encounter.PrimaryUser != undefined)
+			{
+				if(lastCombat.Combatant[i].name == "YOU")
+					lastCombat.Combatant[i].displayName = lastCombat.Encounter.PrimaryUser;
+				else
+					lastCombat.Combatant[i].displayName = lastCombat.Combatant[i].name;
+			}
 			else
+			{
 				lastCombat.Combatant[i].displayName = lastCombat.Combatant[i].name;
+			}
 
 			lastCombat.Combatant[i].isPet = !1;
 			lastCombat.Combatant[i].hasPet = !1;
@@ -388,7 +402,6 @@
 			{
 				lastCombat.Combatant[i].hasOwner = !0;
 				lastCombat.Combatant[i].owner = lastCombat.Combatant[i].name.match(nickRgx)[1];
-				lastCombat.Combatant[i].displayName = lastCombat.Combatant[i].name.replace(nickRgx, "");
 			}
 		}
 
@@ -400,13 +413,15 @@
 		{
 			if(lastCombat.Combatant[i].hasOwner)
 			{
+				if(lastCombat.getCombatantByDisplayName(lastCombat.Combatant[i].owner) == undefined) continue;
 				lastCombat.getCombatantByDisplayName(lastCombat.Combatant[i].owner).pets = [];
 				// pettype
 				for(var r in ffxivDict.pets)
 				{
 					for(var rgx in ffxivDict.pets[r])
 					{
-						if(ffxivDict.pets[r][rgx].test(lastCombat.Combatant[i].displayName))
+						var type = lastCombat.Combatant[i].name.replace(nickRgx, "");
+						if(ffxivDict.pets[r][rgx].test(type))
 						{
 							lastCombat.Combatant[i].isPet = !0;
 							lastCombat.Combatant[i].petType = r;
@@ -457,24 +472,48 @@
 					"DirectHit%": lastCombat.Combatant[i].merged.DirectHitCount / lastCombat.Combatant[i].merged.swings * 100,
 					"CritDirectHit%": lastCombat.Combatant[i].merged.CritDirectHitCount / lastCombat.Combatant[i].merged.swings * 100
 				};
-
-				lastCombat.Combatant[i].recalculated.DPS = Math.round(lastCombat.Combatant[i].recalculated.dps);
-				lastCombat.Combatant[i].recalculated.HPS = Math.round(lastCombat.Combatant[i].recalculated.hps);
-				lastCombat.Combatant[i].recalculated.ENCDPS = Math.round(lastCombat.Combatant[i].recalculated.encdps);
-				lastCombat.Combatant[i].recalculated.ENCHPS = Math.round(lastCombat.Combatant[i].recalculated.enchps);
-
-				for(var x in lastCombat.Combatant[i].recalculated)
-				{
-					if(isNaN(lastCombat.Combatant[i].recalculated[x]))
-						lastCombat.Combatant[i].recalculated[x] = 0;
-				}
-
-				if(isNaN(lastCombat.Combatant[i].maxhitval))
-					lastCombat.Combatant[i].maxhitval = 0;
-
-				if(isNaN(lastCombat.Combatant[i].maxhealval))
-					lastCombat.Combatant[i].maxhealval = 0;
 			}
+			else
+			{
+				lastCombat.Combatant[i].recalculated = {
+					"dps": lastCombat.Combatant[i].damage / lastCombat.Combatant[i].DURATION,
+					"hps": lastCombat.Combatant[i].healed / lastCombat.Combatant[i].DURATION,
+					"encdps": lastCombat.Combatant[i].damage / lastCombat.Encounter.DURATION,
+					"enchps": lastCombat.Combatant[i].healed / lastCombat.Encounter.DURATION,
+					"DPS": 0,
+					"HPS": 0,
+					"ENCDPS": 0,
+					"ENCHPS": 0,
+					"tohit": lastCombat.Combatant[i].hits / lastCombat.Combatant[i].swings * 100,
+					"damage%": lastCombat.Combatant[i].damage / lastCombat.Encounter.damage * 100,
+					"healed%": lastCombat.Combatant[i].healed / lastCombat.Encounter.healed * 100,
+					"crithit%": lastCombat.Combatant[i].crithits / lastCombat.Combatant[i].swings * 100,
+					"overHeal%": lastCombat.Combatant[i].overHeal / lastCombat.Combatant[i].healed * 100,
+					"critheal%": lastCombat.Combatant[i].critheals / lastCombat.Combatant[i].heals * 100,
+					"DirectHit%": lastCombat.Combatant[i].DirectHitCount / lastCombat.Combatant[i].swings * 100,
+					"CritDirectHit%": lastCombat.Combatant[i].CritDirectHitCount / lastCombat.Combatant[i].swings * 100
+				};
+			}
+			
+			if(!ACTColumnAdder)
+				lastCombat.Combatant[i]["overHeal%"] = lastCombat.Combatant[i]["OverHealPct"];
+
+			lastCombat.Combatant[i].recalculated.DPS = Math.round(lastCombat.Combatant[i].recalculated.dps);
+			lastCombat.Combatant[i].recalculated.HPS = Math.round(lastCombat.Combatant[i].recalculated.hps);
+			lastCombat.Combatant[i].recalculated.ENCDPS = Math.round(lastCombat.Combatant[i].recalculated.encdps);
+			lastCombat.Combatant[i].recalculated.ENCHPS = Math.round(lastCombat.Combatant[i].recalculated.enchps);
+
+			for(var x in lastCombat.Combatant[i].recalculated)
+			{
+				if(isNaN(lastCombat.Combatant[i].recalculated[x]))
+					lastCombat.Combatant[i].recalculated[x] = 0;
+			}
+
+			if(isNaN(lastCombat.Combatant[i].maxhitval))
+				lastCombat.Combatant[i].maxhitval = 0;
+
+			if(isNaN(lastCombat.Combatant[i].maxhealval))
+				lastCombat.Combatant[i].maxhealval = 0;
 
 			lastCombat.Combatant[i].get = function(key)
 			{
@@ -488,25 +527,35 @@
 				
 				return this[key];
 			}
+
+			lastCombat.Combatant[i].getpet = function(key)
+			{
+				if(this.pets != undefined)
+				{
+					var value = 0;
+					for(var i in this.pets)
+					{
+						value += lastCombat.getCombatantByDisplayName(this.pets[i]).get(key);
+					}
+					return value;
+				}
+				else
+				{
+					return 0;
+				}
+			}
 		}
+
 		if(sortkey !== undefined)
 		{
 
-		}
-		
-		lastCombat.persons = {};
-		for(var i in lastCombat.Combatant)
-		{
-			if(lastCombat.summonerMerge && lastCombat.Combatant[i].isPet) return;
-			lastCombat.persons[i] = function()
-			{
-				return lastCombat.getCombatantByDisplayName(lastCombat.Combatant[i].displayName);
-			}
 		}
 
 		lastCombat.summonerMerge = petMerge;
 		lastCombat.sortkey = sortkey;
 		lastCombat.maxValue = 0;
+		lastCombat.zone = lastCombat.Encounter.CurrentZoneName;
+
 		lastCombat.sortAsc = [];
 		lastCombat.sortDesc = [];
 
@@ -534,17 +583,56 @@
 			lastCombat.sortAsc.sort(function(a, b) { return a.value - b.value; });
 			lastCombat.sortDesc.sort(function(a, b) { return b.value - a.value; });
 		};
+
 		lastCombat.sortkeyChange = function(sortkey)
 		{
 			this.resort(sortkey);
 		};
 
+		lastCombat.getSnapShot = function(sortkey)
+		{
+			var maxValue = 0;
+			var sort = sortkey;
+			var sortAsc = [];
+			var sortDesc = [];
+			
+			if(ffxivDict.sortkey[sort] != undefined)
+				sort = ffxivDict.sortkey[sortkey];
+
+			for(var i in lastCombat.Combatant)
+			{
+				if(lastCombat.Combatant[i].get(sort) > maxValue)
+				maxValue = lastCombat.Combatant[i].get(sort);
+			}
+
+			var idx = 0;
+			for(var i in lastCombat.Combatant)
+			{
+				sortAsc[idx] = {"value":lastCombat.Combatant[i].get(sort), "displayName":lastCombat.Combatant[i].displayName};
+				sortDesc[idx++] = {"value":lastCombat.Combatant[i].get(sort), "displayName":lastCombat.Combatant[i].displayName};
+			}
+
+			sortAsc.sort(function(a, b) { return a.value - b.value; });
+			sortDesc.sort(function(a, b) { return b.value - a.value; });
+
+			return { "asc": sortAsc, "desc": sortDesc, "sortkey": sort, "maxValue": maxValue };
+		}
+
+		lastCombat.displayHPS = ["Cnj", "Whm", "Sch", "Ast", "Rdm"];
+
 		lastCombat.resort(sortkey);
 		var end = window.performance.now();
 		var diff = end - start;
-
 		lastCombat.runTime = diff;
-		console.warn(lastCombat);
+
+		try
+		{
+			onOverlayDataUpdate(lastCombat);
+		}
+		catch(ex) 
+		{ 
+			console.error(ex);
+		}
 	};
 	try
 	{

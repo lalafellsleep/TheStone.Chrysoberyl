@@ -9,13 +9,44 @@
 	var overlayPluginVersion = "";
 	var overlayType = overlayTypes.Browser;
 	var lastCombat = {};
-	var ACTColumnAdder = false;
+	var ACTColumnAdder = !1;
 	var ffxivDict = {
 		"pets":{
-			"smn":[/^카벙클/im, /에기$/im, /エギ$/im, /-egi$/im, /-karfunkel$/im, /^carbuncle/im, /carbuncle$/im, /^カーバンクル/im],
-			"sch":[/^요정/im, /^eos$/im, /^selene$/im, /^フェアリー/im],
-			"mch":[/^자동포탑/im, /^オートタレット/im, /autoturret$/im, /^auto-tourelle/im],
-			"ast":[/^지상의/im, /^earthly/im]
+			"Smn":[/^카벙클/im, /에기$/im, /エギ$/im, /-egi$/im, /-karfunkel$/im, /^carbuncle/im, /carbuncle$/im, /^カーバンクル/im],
+			"Sch":[/^요정/im, /^eos$/im, /^selene$/im, /^フェアリー/im],
+			"Mch":[/^자동포탑/im, /^オートタレット/im, /autoturret$/im, /^auto-tourelle/im],
+			"Ast":[/^지상의/im, /^earthly/im]
+		},
+		"role":{
+			"Pld":"Tanker",
+			"Gla":"Tanker",
+			"Gld":"Tanker",
+			"War":"Tanker",
+			"Mrd":"Tanker",
+			"Drk":"Tanker",
+
+			"Whm":"Healer",
+			"Cnj":"Healer",
+			"Sch":"Healer",
+			"Ast":"Healer",
+			
+			"Mnk":"DPS",
+			"Pgl":"DPS",
+			"Drg":"DPS",
+			"Lnc":"DPS",
+			"Rog":"DPS",
+			"Nin":"DPS",
+			"Sam":"DPS",
+			
+			"Arc":"DPS",
+			"Brd":"DPS",
+			"Mch":"DPS",
+
+			"Thm":"DPS",
+			"Blm":"DPS",
+			"Acn":"DPS",
+			"Smn":"DPS",
+			"Rdm":"DPS"
 		}
 	};
 
@@ -275,7 +306,7 @@
 		var nickRgx = /\s\((.*?)\)/im;
 
 		if(e.detail.Encounter.CurrentZoneRaw != 0)
-			ACTColumnAdder = true;
+			ACTColumnAdder = !0;
 
 		lastCombat = e.detail;
 
@@ -302,13 +333,10 @@
 		{
 			if(deleteArgs.indexOf(i) > -1)
 				delete lastCombat.Encounter[i];
-
 			if(doubleArgs.indexOf(i) > -1)
 				lastCombat.Encounter[i] = parseFloat(lastCombat.Encounter[i].replace(replaceRgx, "0.0").replace(/%/, ""));
-
 			if(decimalArgs.indexOf(i) > -1)
 				lastCombat.Encounter[i] = parseInt(lastCombat.Encounter[i].replace(replaceRgx, "0"));
-				
 			if(strToDecimalArgs.indexOf(f) > -1)
 				lastCombat.Combatant[i][f] = parseInt(lastCombat.Combatant[i][f].replace(/\.|,/, "").replace(replaceRgx, "0"));
 		}
@@ -319,13 +347,10 @@
 			{
 				if(deleteArgs.indexOf(f) > -1)
 					delete lastCombat.Combatant[i][f];
-
 				if(doubleArgs.indexOf(f) > -1)
 					lastCombat.Combatant[i][f] = parseFloat(lastCombat.Combatant[i][f].replace(replaceRgx, "0").replace(/%/, ""));
-
 				if(decimalArgs.indexOf(f) > -1)
 					lastCombat.Combatant[i][f] = parseInt(lastCombat.Combatant[i][f].replace(replaceRgx, "0"));
-
 				if(strToDecimalArgs.indexOf(f) > -1)
 					lastCombat.Combatant[i][f] = parseInt(lastCombat.Combatant[i][f].replace(/\.|,/, "").replace(replaceRgx, "0"));
 			}
@@ -335,18 +360,32 @@
 			else
 				lastCombat.Combatant[i]["displayName"] = lastCombat.Combatant[i].name;
 
-			lastCombat.Combatant[i]["isPet"] = false;
-			lastCombat.Combatant[i]["hasPet"] = false;
-			lastCombat.Combatant[i]["hasOwner"] = false;
+			lastCombat.Combatant[i]["isPet"] = !1;
+			lastCombat.Combatant[i]["hasPet"] = !1;
+			lastCombat.Combatant[i]["hasOwner"] = !1;
 			lastCombat.Combatant[i]["pets"] = [];
+			lastCombat.Combatant[i]["merged"] = [];
+
+			// cleaveore compatibility
+			lastCombat.Combatant[i]["effectiveHeal"] = lastCombat.Combatant[i].healed - lastCombat.Combatant[i].overHeal;
+
+			lastCombat.Combatant[i].get = function(key)
+			{
+				if(this.merged[key] == undefined)
+					return this[key];
+				else
+					return this.merged[key];
+			}
 
 			if(nickRgx.test(lastCombat.Combatant[i].name))
 			{
-				lastCombat.Combatant[i].hasOwner = true;
+				lastCombat.Combatant[i].hasOwner = !0;
 				lastCombat.Combatant[i]["owner"] = lastCombat.Combatant[i].name.match(nickRgx)[1];
 				lastCombat.Combatant[i].displayName = lastCombat.Combatant[i].name.replace(nickRgx, "");
 			}
 		}
+
+		var mergeValues = ["damage", "hits", "swings", "misses", "crithits", "DirectHitCount", "CritDirectHitCount", "damagetaken", "heals", "healed", "critheals", "healstaken", "damageShield", "overHeal", "absorbHeal", "effectiveHeal"];
 
 		for(var i in lastCombat.Combatant)
 		{
@@ -359,14 +398,25 @@
 					{
 						if(ffxivDict.pets[r][rgx].test(lastCombat.Combatant[i].displayName))
 						{
-							lastCombat.Combatant[i].isPet = true;
+							lastCombat.Combatant[i].isPet = !0;
 							lastCombat.Combatant[i]["petType"] = r;
+							lastCombat.Combatant[i].Job = lastCombat.Combatant[i].petType;
 							if(lastCombat.getCombatantByDisplayName(lastCombat.Combatant[i].owner) != undefined)
 								lastCombat.getCombatantByDisplayName(lastCombat.Combatant[i].owner).pets.push(lastCombat.Combatant[i].displayName);
 						}
 					}
 				}
+				
+				if(lastCombat.Combatant[i].isPet == !0)
+				{
+					for(var x in mergeValues)
+					{
+						lastCombat.getCombatantByDisplayName(lastCombat.Combatant[i].owner).merged[mergeValues[x]] = lastCombat.Combatant[i][mergeValues[x]] + lastCombat.getCombatantByDisplayName(lastCombat.Combatant[i].owner)[mergeValues[x]];
+					}
+				}
 			}
+			
+			lastCombat.Combatant[i]["role"] = ffxivDict.role[lastCombat.Combatant[i].Job];
 		}
 
 		if(sortkey !== undefined)
@@ -405,14 +455,7 @@
 	switch(overlayType)
 	{
 		case 1:
-			try
-			{
-				document.addEventListener('onOverlayDataUpdate', overlaydata);
-			}
-			catch(ex)
-			{
-
-			}
+			document.addEventListener('onOverlayDataUpdate', overlaydata);
 		break;
 		case 0:
 		case 2:

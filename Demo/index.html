@@ -27,15 +27,6 @@
 				$("#RDPS").html(e.Encounter.ENCDPS);
 				$("#RHPS").html(e.Encounter.ENCHPS);
 
-				$("#contentDPS>div").each(function()
-				{
-					for(var i in e.sortDesc)
-					{
-						if($(this).data("name") == e.sortDesc[i].displayName) return;
-					}
-					$(this).remove();
-				});
-
 				$("#contentDPSheader").html("");
 				$("#contentDPSheader").append("<span style=\"height:12px; width:50px; float:left; text-align:left; border-left:4px solid #FA0;\">DPS Data</span>");
 				for(var i in displayDPSRows)
@@ -56,6 +47,15 @@
 				"enchps":{"data":e.getSnapShot("enchps"), "element":"#contentHPS", "rows":displayHPSRows}};
 				for(var v in snapshots)
 				{
+					$(snapshots[v].element + ">div").each(function()
+					{
+						for(var i in snapshots[v].data.desc)
+						{
+							if($(this).data("name") == snapshots[v].data.desc[i].displayName) return;
+						}
+						$(this).remove();
+					});
+
 					var idx = 0;
 					for(var i in snapshots[v].data.desc)
 					{
@@ -218,7 +218,7 @@
 			#contentDPS>div[data-job=SCH]>.bar::before,
 			#contentHPS>div[data-job=SCH]>.bar::before {background-position:-19px -57px;}
 			#contentDPS>div[data-job=AST]>.bar,
-			#contentHPS>div[data-job=AST]>.bar {background-color:#E92;}
+			#contentHPS>div[data-job=AST]>.bar {background-color:#C70;}
 			#contentDPS>div[data-job=AST]>.bar::before,
 			#contentHPS>div[data-job=AST]>.bar::before {background-position:-19px -76px;}
 
@@ -240,7 +240,7 @@
 			#contentHPS>div[data-job=SAM]>.bar::before {background-position:-38px -76px;}
 
 			#contentDPS>div[data-job=BRD]>.bar,
-			#contentHPS>div[data-job=BRD]>.bar {background-color:#AD4;}
+			#contentHPS>div[data-job=BRD]>.bar {background-color:#9B4;}
 			#contentDPS>div[data-job=BRD]>.bar::before,
 			#contentHPS>div[data-job=BRD]>.bar::before {background-position:-19px -38px;}
 			#contentDPS>div[data-job=MCH]>.bar,

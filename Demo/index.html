@@ -2,6 +2,7 @@
 	<head>
 		<meta charset="utf-8">
 		<script src="../script/chrysoberyl_lastst.js"></script>
+		<script src="js/html2canvas.min.js"></script>
 		<script src="js/jquery-3.2.1.min.js" type="text/javascript"></script>
 		<title>Chrysoberyl Demo Overlay</title>
 		<script>
@@ -19,6 +20,7 @@
 			function onOverlayDataUpdate(e)
 			{
 				console.profile("render");
+
 				$("#encounter_name").html(e.Encounter.title);
 				$("#duration").html(e.duration);
 
@@ -35,14 +37,14 @@
 				});
 
 				$("#contentDPSheader").html("");
-				$("#contentDPSheader").append("<span style=\"height:12px; width:50px; float:left; text-align:left; border-left:4px solid #FFF;\">DPS Data</span>");
+				$("#contentDPSheader").append("<span style=\"height:12px; width:50px; float:left; text-align:left; border-left:4px solid #FA0;\">DPS Data</span>");
 				for(var i in displayDPSRows)
 				{
 					$("#contentDPSheader").append("<span style=\"width:" + displayDPSRows[i].width + ";\">" + displayDPSRows[i].name + "</span>");
 				}
 
 				$("#contentHPSheader").html("");
-				$("#contentHPSheader").append("<span style=\"height:12px; width:50px; float:left; text-align:left; border-left:4px solid #FFF;\">HPS Data</span>");
+				$("#contentHPSheader").append("<span style=\"height:12px; width:50px; float:left; text-align:left; border-left:4px solid #FA0;\">HPS Data</span>");
 				for(var i in displayHPSRows)
 				{
 					$("#contentHPSheader").append("<span style=\"width:" + displayHPSRows[i].width + ";\">" + displayHPSRows[i].name + "</span>");
@@ -67,13 +69,20 @@
 						}
 	
 						var $person = $(snapshots[v].element + ">div[data-name=\"" + combat.displayName + "\"]");
+						var me = "";
+
+						if(combat.name == "YOU")
+						{
+							me = " cme";
+						}
+
 						$person.find(".bar").css("width", Math.round(combat.get(snapshots[v].data.sortkey) / snapshots[v].data.maxValue * 100) + "%");
 						$person.find(".bar>.pet").css("width", Math.round(combat.getpet(snapshots[v].data.sortkey) / combat.get(snapshots[v].data.sortkey) * 100) + "%");
 	
 						$person.css("top", idx++ * height + "px");
 	
 						$person.find(".data").html("");
-						$person.find(".data").append("<span style=\"float:left;\" class=\"JOB " + combat.Job + "\">" + combat.displayName + "</span>");
+						$person.find(".data").append("<span style=\"float:left;\" class=\"JOB " + combat.Job + me +" cname\">" + combat.displayName + "</span>");
 	
 						for(var i in snapshots[v].rows)
 						{
@@ -86,8 +95,42 @@
 					}
 					$(snapshots[v].element).css("height", (idx * height) + "px");
 				}
+
 				console.profileEnd();
 			}
+
+			$(document).ready(function()
+			{
+				$("#Capture").click(function()
+				{
+					html2canvas(document.querySelector("#captureElement")).then(canvas => $("#captured").html(canvas));
+					$(".cname").css("display", "none");
+					$(".cme").css("display", "inline-block");
+					setTimeout(function()
+					{
+						Chrysoberyl.takeScreenShot();
+					}, 200);
+					setTimeout(function()
+					{
+						$("#captureSaveMsg").fadeIn(500);
+						$("#captured").fadeIn(500);
+						setTimeout(function()
+						{ 
+							$(".cname").css("display", "inline-block");
+							$(".cme").css("display", "inline-block");
+							$("#captureSaveMsg").fadeOut(500);
+							$("#captured").fadeOut(500); 
+						}, 1000);
+					}, 500);
+				});
+
+				$("#STOP").click(function()
+				{
+					Chrysoberyl.endEncounter();
+					$("#cutEncounterMsg").fadeIn(300);
+					setTimeout(function(){ $("#cutEncounterMsg").fadeOut(300); }, 1500);
+				});
+			});
 		</script>
 		<style>
 			@import url(http://fonts.googleapis.com/earlyaccess/notosanskr.css);
@@ -98,7 +141,7 @@
 			::-webkit-scrollbar-track {background:rgba(255,255,255,.1); border-radius: 3px;}
 			::-webkit-scrollbar-thumb {border-radius: 3px; background: rgba(255,255,255,0.5);}
 			::-webkit-scrollbar-thumb:window-inactive {background: rgba(255,255,255,0.25);}
-			#titlebar {background:rgba(0,0,0,0.8); color:#FFF; position:fixed; left:0px; top:0px; right:0px; height:42px; border-left:4px solid #FA0;}
+			#titlebar {background:rgba(0,0,0,0.8); color:#FFF; position:fixed; left:0px; top:0px; right:0px; height:42px;}
 
 			#resizer {position:fixed; border:5px solid rgba(255,192,0,.25); border-left-color:transparent; border-top-color:transparent; right:0px; bottom:0px;}
 			#content {position:fixed; left:0px; top:43px; bottom:0px; right:0px; overflow:auto;}
@@ -110,6 +153,12 @@
 			#RDPS::before {content:"RDPS: ";}
 			#RHPS {position:absolute; left:170px; top:19px; color:#AF7;}
 			#RHPS::before {content:"RHPS: ";}
+
+			#STOP {width:26px; height:26px; top:8px; right:8px;  background:#FFF; -webkit-mask:url(img/stop.svg) no-repeat; -webkit-mask-size:100% 100%; position:absolute;}
+			#STOP:hover {background:#FA0;}
+
+			#Capture {width:26px; height:26px; top:8px; right:50px; background:#FFF; -webkit-mask:url(img/capture.svg) no-repeat; -webkit-mask-size:100% 100%; position:absolute;}
+			#Capture:hover {background:#FA0;}
 
 			#contentDPSheader,
 			#contentHPSheader {margin-top:0px; height:12px; background:#000; color:#FFF; position:relative; text-align:right;}
@@ -209,21 +258,35 @@
 			#contentHPS>div[data-job=RDM]>.bar {background-color:#C5A;}
 			#contentDPS>div[data-job=RDM]>.bar::before,
 			#contentHPS>div[data-job=RDM]>.bar::before {background-position:-57px -76px;}
+
+			#captured {position:fixed; left:10px; top:10px; bottom:10px; right:10px; display:none; overflow:hidden; box-shadow:inset 0px 0px 10px #FFF;}
+			#captured>canvas {width:100% !important; height:100% !important; opacity:0.85; background:transparent;}
+
+			#captureElement {position:fixed; left:0px; top:0px; bottom:0px; right:0px;}
+			#captureSaveMsg,
+			#cutEncounterMsg {position:fixed; bottom:10px; background:#333; color:#FFF; width:200px; height:32px; line-height:32px; margin-left:-100px; left:50%; text-align:center; font-size:14px; box-shadow:0px 0px 4px #000; z-index:999; display:none;}
 		</style>
 	</head>
 	<body>
-		<div id="titlebar">
-			<div id="encounter_name">No Encounter Data</div>
-			<div id="duration">00:00</div>
-			<div id="RDPS">0</div>
-			<div id="RHPS">0</div>
+		<div id="captureElement">
+			<div id="titlebar">
+				<div id="encounter_name">No Encounter Data</div>
+				<div id="duration">00:00</div>
+				<div id="RDPS">0</div>
+				<div id="RHPS">0</div>
+				<div id="STOP"></div>
+				<div id="Capture"></div>
+			</div>
+			<div id="content">
+				<div id="contentDPSheader"></div>
+				<div id="contentDPS"></div>
+				<div id="contentHPSheader"></div>
+				<div id="contentHPS"></div>
+			</div>
 		</div>
-		<div id="content">
-			<div id="contentDPSheader"></div>
-			<div id="contentDPS"></div>
-			<div id="contentHPSheader"></div>
-			<div id="contentHPS"></div>
-		</div>
+		<div id="captured"></div>
+		<div id="captureSaveMsg">Capture Saved</div>
+		<div id="cutEncounterMsg">Ended Encounter</div>
 		<div id="resizer"></div>
 	</body>
 </html>

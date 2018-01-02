@@ -1,87 +1,12 @@
-(function(doc)
+var overlayTypes = {
+	"Browser":0, // ACTWebSocket with Browser
+	"OverlayPlugin":1, // OverlayPlugin
+	"OverlayProcess":2, // ACTWebSocket
+};
+var overlayType = overlayTypes.Browser;
+var Chrysoberyl = new function()
 {
-	var overlayTypes = {
-		"Browser":0, // ACTWebSocket with Browser
-		"OverlayPlugin":1, // OverlayPlugin
-		"OverlayProcess":2, // ACTWebSocket
-	};
-	var sortkey = "encdps";
-	var overlayPluginVersion = "";
-	var overlayType = overlayTypes.Browser;
-	var lastCombat = {};
-	var ACTColumnAdder = !1;
-	var ffxivDict = {
-		"pets":{
-			"Smn":[/^카벙클/im, /에기$/im, /エギ$/im, /-egi$/im, /-karfunkel$/im, /^carbuncle/im, /carbuncle$/im, /^カーバンクル/im],
-			"Sch":[/^요정/im, /^eos$/im, /^selene$/im, /^フェアリー/im],
-			"Mch":[/^자동포탑/im, /^オートタレット/im, /autoturret$/im, /^auto-tourelle/im],
-			"Ast":[/^지상의/im, /^earthly/im]
-		},
-		"role":{
-			"Pld":"Tanker",
-			"Gla":"Tanker",
-			"Gld":"Tanker",
-			"War":"Tanker",
-			"Mrd":"Tanker",
-			"Drk":"Tanker",
-
-			"Whm":"Healer",
-			"Cnj":"Healer",
-			"Sch":"Healer",
-			"Ast":"Healer",
-			
-			"Mnk":"DPS",
-			"Pgl":"DPS",
-			"Drg":"DPS",
-			"Lnc":"DPS",
-			"Rog":"DPS",
-			"Nin":"DPS",
-			"Sam":"DPS",
-			
-			"Arc":"DPS",
-			"Brd":"DPS",
-			"Mch":"DPS",
-
-			"Thm":"DPS",
-			"Blm":"DPS",
-			"Acn":"DPS",
-			"Smn":"DPS",
-			"Rdm":"DPS"
-		},
-		"jobclass":{
-			"Gla":"PLD",
-			"Gld":"PLD",
-			"Mrd":"WAR",
-			"Cnj":"WHM",
-			"Pgl":"MNK",
-			"Lnc":"DRG",
-			"Rog":"NIN",
-			"Arc":"BRD",
-			"Thm":"BLM",
-			"Acn":"SMN"
-		},
-		"sortkey":{
-			"dps":"damage",
-			"encdps":"damage",
-			"hps":"healed",
-			"enchps":"healed",
-			"maxhit":"maxhitval",
-			"maxheal":"maxhealval",
-			"overheal%":"overHeal"
-		}
-	};
-	var args = {
-		"delete":["NAME3", "NAME4", "NAME5", "NAME6", "NAME7", "NAME8", "NAME9", "NAME10", "NAME11", "NAME12", "NAME13", "NAME14", "NAME15", "DAMAGE-b", "DAMAGE-k", "DAMAGE-m", "ENCDPS-k", "ENCDPS-m", "ENCHPS-k", "ENCHPS-m", "crittypes", "t", "n", "threatdelta", "threatstr", "DPS-k", "DPS-m", "TOHIT", "damage-b", "damage-m", "MAXHITWARD", "MAXHEALWARD", "maxhealward"],
-		"double":["Last10DPS", "Last30DPS", "Last60DPS", "Last180DPS", "encdps", "enchps", "tohit", "dps", "BlockPct", "DirectHitPct", "OverHealPct", "ParryPct", "crithit%", "damage%", "critheal%", "healed%", "IncToHit"],
-		"decimal":["CritDirectHitCount", "CritDirectHitPct", "DPS", "DURATION", "DirectHitCount", "ENCDPS", "ENCHPS", "crithits", "hits", "kills", "swings", "overHeal", "powerdrain", "powerheal", "damage", "critheals", "absorbHeal", "damageShield", "damagetaken", "heals", "healstaken", "hitfailed", "misses", "cures", "healed", "deaths"],
-		"string":["MAXHIT", "MAXHEAL"],
-		"merged":["damage", "hits", "swings", "misses", "crithits", "DirectHitCount", "CritDirectHitCount", "damagetaken", "heals", "healed", "critheals", "healstaken", "damageShield", "overHeal", "absorbHeal", "effectiveHeal"]
-	};
-	var replaceRgx = /(---|--|NaN|Infinity)/im;
-	var nickRgx = /\s\((.*?)\)/im;
-	var petMerge = !0;
-
-	var qs = function(name)
+	this.qs = function(name)
 	{
 		if (doc.querySelectorAll) 
 		{
@@ -100,7 +25,7 @@
 		}
 		return ret;
 	};
-	var ACTWebSocketConnect = function(url, type)
+	this.ACTWebSocketConnect = function(url, type)
 	{
 		this.connect = function()
 		{
@@ -296,7 +221,7 @@
 			}
 		});
 	};
-	var queryString = function()
+	this.queryString = function()
 	{
 		var href = window.location.href, key, value;
 		var params = href.slice(href.indexOf('?') + 1).split('&');
@@ -313,7 +238,7 @@
 
 		return qs;
 	};
-	var takeScreenShot = function()
+	this.takeScreenShot = function()
 	{
 		switch(overlayType)
 		{
@@ -326,9 +251,96 @@
 				break;
 		}
 	};
-	var endEncounter = function()
+	this.endEncounter = function()
 	{
+		switch(overlayType)
+		{
+			case 0:
+
+				break;
+			case 1:
+				window.OverlayPluginApi.endEncounter();
+				break;
+		}
 	};
+};
+
+(function(doc)
+{
+	var sortkey = "encdps";
+	var overlayPluginVersion = "";
+	var lastCombat = {};
+	var ACTColumnAdder = !1;
+	var ffxivDict = {
+		"pets":{
+			"Smn":[/^카벙클/im, /에기$/im, /エギ$/im, /-egi$/im, /-karfunkel$/im, /^carbuncle/im, /carbuncle$/im, /^カーバンクル/im],
+			"Sch":[/^요정/im, /^eos$/im, /^selene$/im, /^フェアリー/im],
+			"Mch":[/^자동포탑/im, /^オートタレット/im, /autoturret$/im, /^auto-tourelle/im],
+			"Ast":[/^지상의/im, /^earthly/im]
+		},
+		"role":{
+			"Pld":"Tanker",
+			"Gla":"Tanker",
+			"Gld":"Tanker",
+			"War":"Tanker",
+			"Mrd":"Tanker",
+			"Drk":"Tanker",
+
+			"Whm":"Healer",
+			"Cnj":"Healer",
+			"Sch":"Healer",
+			"Ast":"Healer",
+			
+			"Mnk":"DPS",
+			"Pgl":"DPS",
+			"Drg":"DPS",
+			"Lnc":"DPS",
+			"Rog":"DPS",
+			"Nin":"DPS",
+			"Sam":"DPS",
+			
+			"Arc":"DPS",
+			"Brd":"DPS",
+			"Mch":"DPS",
+
+			"Thm":"DPS",
+			"Blm":"DPS",
+			"Acn":"DPS",
+			"Smn":"DPS",
+			"Rdm":"DPS"
+		},
+		"jobclass":{
+			"Gla":"PLD",
+			"Gld":"PLD",
+			"Mrd":"WAR",
+			"Cnj":"WHM",
+			"Pgl":"MNK",
+			"Lnc":"DRG",
+			"Rog":"NIN",
+			"Arc":"BRD",
+			"Thm":"BLM",
+			"Acn":"SMN"
+		},
+		"sortkey":{
+			"dps":"damage",
+			"encdps":"damage",
+			"hps":"healed",
+			"enchps":"healed",
+			"maxhit":"maxhitval",
+			"maxheal":"maxhealval",
+			"overheal%":"overHeal"
+		}
+	};
+	var args = {
+		"delete":["NAME3", "NAME4", "NAME5", "NAME6", "NAME7", "NAME8", "NAME9", "NAME10", "NAME11", "NAME12", "NAME13", "NAME14", "NAME15", "DAMAGE-b", "DAMAGE-k", "DAMAGE-m", "ENCDPS-k", "ENCDPS-m", "ENCHPS-k", "ENCHPS-m", "crittypes", "t", "n", "threatdelta", "threatstr", "DPS-k", "DPS-m", "TOHIT", "damage-b", "damage-m", "MAXHITWARD", "MAXHEALWARD", "maxhealward"],
+		"double":["Last10DPS", "Last30DPS", "Last60DPS", "Last180DPS", "encdps", "enchps", "tohit", "dps", "BlockPct", "DirectHitPct", "OverHealPct", "ParryPct", "crithit%", "damage%", "critheal%", "healed%", "IncToHit"],
+		"decimal":["CritDirectHitCount", "CritDirectHitPct", "DPS", "DURATION", "DirectHitCount", "ENCDPS", "ENCHPS", "crithits", "hits", "kills", "swings", "overHeal", "powerdrain", "powerheal", "damage", "critheals", "absorbHeal", "damageShield", "damagetaken", "heals", "healstaken", "hitfailed", "misses", "cures", "healed", "deaths"],
+		"string":["MAXHIT", "MAXHEAL"],
+		"merged":["damage", "hits", "swings", "misses", "crithits", "DirectHitCount", "CritDirectHitCount", "damagetaken", "heals", "healed", "critheals", "healstaken", "damageShield", "overHeal", "absorbHeal", "effectiveHeal"]
+	};
+	var replaceRgx = /(---|--|NaN|Infinity)/im;
+	var nickRgx = /\s\((.*?)\)/im;
+	var petMerge = !0;
 	var overlaydata = function(e)
 	{
 		var start = window.performance.now();

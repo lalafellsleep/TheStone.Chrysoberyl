@@ -292,7 +292,6 @@
 		this.overlaydata = function(e)
 		{
 			var start = window.performance.now();
-	
 			if(e.detail.Encounter.CurrentRealUserName != undefined && e.detail.Encounter.CurrentZoneRaw != 0)
 				ACTColumnAdder = !0;
 			lastCombat = e.detail;

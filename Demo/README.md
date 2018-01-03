@@ -1,6 +1,6 @@
 ## Preview
 
-![img](https://github.com/laiglinne-ff/TheStone.Chrysoberyl/blob/master/Resources/ScreenShot_2018-01-03_06-06-06.381.png)
+![img](https://github.com/laiglinne-ff/TheStone.Chrysoberyl/blob/master/Resources/ScreenShot_2018-01-03_13-55-13.449.png)
 
 ## Testing Environment
 

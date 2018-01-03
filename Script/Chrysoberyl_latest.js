@@ -285,17 +285,15 @@
 	},
 	Chrysoberyl = function()
 	{
-		var $t = this;
 		this.debug = false;
 		this.sortkey = sortkey;
 		this.version = version;
 		this.overlaydata = function(e)
 		{
-			var start = window.performance.now();
 			if(e.detail.Encounter.CurrentRealUserName != undefined && e.detail.Encounter.CurrentZoneRaw != 0)
 				ACTColumnAdder = !0;
+
 			lastCombat = e.detail;
-	
 			lastCombat.getCombatantByDisplayName = function(s)
 			{
 				for(var i in this.Combatant)
@@ -305,15 +303,11 @@
 				}
 				return this.Combatant[s];
 			};
-	
+
 			for(var i in lastCombat.Encounter)
 			{
-				if(args.delete.indexOf(i) > -1)
-					delete lastCombat.Encounter[i];
-				if(args.double.indexOf(i) > -1)
-					lastCombat.Encounter[i] = parseFloat(lastCombat.Encounter[i].replace(replaceRgx, "0.0").replace(/%/, ""));
-				if(args.decimal.indexOf(i) > -1)
-					lastCombat.Encounter[i] = parseInt(lastCombat.Encounter[i].replace(replaceRgx, "0"));
+				if(args.double.indexOf(i) > -1 || args.decimal.indexOf(i) > -1)
+					lastCombat.Encounter[i] = parseFloat(lastCombat.Encounter[i].replace(replaceRgx, "0").replace(/%/, ""));
 				if(args.string.indexOf(f) > -1)
 					lastCombat.Combatant[i][f] = parseInt(lastCombat.Combatant[i][f].replace(/\.|,/, "").replace(replaceRgx, "0"));
 			}
@@ -322,12 +316,8 @@
 			{
 				for(var f in lastCombat.Combatant[i])
 				{
-					if(args.delete.indexOf(f) > -1)
-						delete lastCombat.Combatant[i][f];
-					if(args.double.indexOf(f) > -1)
+					if(args.double.indexOf(f) > -1 || args.decimal.indexOf(f) > -1)
 						lastCombat.Combatant[i][f] = parseFloat(lastCombat.Combatant[i][f].replace(replaceRgx, "0").replace(/%/, ""));
-					if(args.decimal.indexOf(f) > -1)
-						lastCombat.Combatant[i][f] = parseInt(lastCombat.Combatant[i][f].replace(replaceRgx, "0"));
 					if(args.string.indexOf(f) > -1)
 						lastCombat.Combatant[i][f] = parseInt(lastCombat.Combatant[i][f].replace(/\.|,/, "").replace(replaceRgx, "0"));
 				}
@@ -366,7 +356,6 @@
 	
 			lastCombat.DURATION = lastCombat.Encounter.DURATION;
 			lastCombat.duration = lastCombat.Encounter.duration;
-			lastCombat.raw = function() { return this; };
 	
 			for(var i in lastCombat.Combatant)
 			{
@@ -504,20 +493,12 @@
 					}
 				}
 			}
-	
-			if(sortkey !== undefined)
-			{
-	
-			}
-	
 			lastCombat.summonerMerge = petMerge;
 			lastCombat.sortkey = sortkey;
 			lastCombat.maxValue = 0;
 			lastCombat.zone = lastCombat.Encounter.CurrentZoneName;
-	
 			lastCombat.sortAsc = [];
 			lastCombat.sortDesc = [];
-	
 			lastCombat.resort = function(sortkey)
 			{
 				lastCombat.maxValue = 0;
@@ -580,10 +561,6 @@
 			lastCombat.displayHPS = ["Cnj", "Whm", "Sch", "Ast", "Rdm"];
 	
 			lastCombat.resort(sortkey);
-			var end = window.performance.now();
-			var diff = end - start;
-			lastCombat.runTime = diff;
-	
 			try
 			{
 				window.onOverlayDataUpdate(lastCombat);

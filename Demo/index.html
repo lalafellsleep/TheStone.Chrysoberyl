@@ -16,18 +16,12 @@
 				"enchps":{"width":40, "name":"HPS"},
 				"overHeal%":{"width":40, "name":"OvH%"}
 			};
-			var show = !1;
+
+			var privdata = [];
 
 			function onOverlayDataUpdate(e)
 			{
 				console.profile("Chrysoberyl Renderer");
-				if(!show)
-				{
-					$("#contentDPSheader").show();
-					$("#contentHPSheader").show();
-					show = !0;
-				}
-
 				var dpshtml = "<span style=\"height:12px; width:50px; float:left; text-align:left; border-left:4px solid #FA0; color:#FA0;\">DPS Data</span>";
 				for(var i in displayDPSRows)
 				{
@@ -73,7 +67,7 @@
 
 						if( $(el + ">div[data-name=\"" + combat.displayName + "\"]").length == 0)
 						{
-							$(el).append("<div data-name=\"" + combat.displayName + "\" data-job=\"" + combat.Class + "\" data-role=\"" + combat.role + "\"><div class='data'></div><div class='bar'><div class='pet'></div></div></div>");
+							$(el).append("<div data-name=\"" + combat.displayName + "\" data-job=\"" + combat.Class + "\" data-role=\"" + combat.role + "\"><div class='data'></div><div class='bar'></div><div class='pet'></div></div>");
 						}
 						
 						var $person = $(el + ">div[data-name=\"" + combat.displayName + "\"]");
@@ -105,8 +99,8 @@
 						$(selector + ">.data").html(html);
 					}
 					$(snapshots[v].element).css("height", (idx * height) + "px");
+					privdata = snapshots;
 				}
-
 				console.profileEnd();
 			}
 
@@ -145,7 +139,7 @@
 				});
 			});
 		</script>
-		<script src="../script/chrysoberyl_lastst.js"></script>
+		<script src="../script/chrysoberyl_latest.js"></script>
 		<style>
 			@import url(http://fonts.googleapis.com/earlyaccess/notosanskr.css);
 
@@ -294,9 +288,9 @@
 				<div id="Capture"></div>
 			</div>
 			<div id="content">
-				<div id="contentDPSheader" style="display:none;"></div>
+				<div id="contentDPSheader"></div>
 				<div id="contentDPS"></div>
-				<div id="contentHPSheader" style="display:none;"></div>
+				<div id="contentHPSheader"></div>
 				<div id="contentHPS"></div>
 			</div>
 		</div>

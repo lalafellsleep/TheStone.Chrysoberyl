@@ -17,27 +17,30 @@
 				"enchps":{"width":40, "name":"HPS"},
 				"overHeal%":{"width":40, "name":"OvH%"}
 			};
+			var show = !1;
 
 			function onOverlayDataUpdate(e)
 			{
 				console.profile("render");
+				if(!show)
+				{
+					$("#contentDPSheader").show();
+					$("#contentHPSheader").show();
+					show = !0;
+				}
 
-				$("#encounter_name").html(e.Encounter.title);
-				$("#duration").html(e.duration);
+				_.html("#contentDPSheader", "");
+				_.html("#contentHPSheader", "");
+				_.html("#encounter_name", e.Encounter.title);
+				_.html("#duration", e.duration);
+				_.html("#RDPS", e.Encounter.ENCDPS);
+				_.html("#RHPS", e.Encounter.ENCHPS);
 
-				$("#RDPS").html(e.Encounter.ENCDPS);
-				$("#RHPS").html(e.Encounter.ENCHPS);
-
-				$("#contentDPSheader").show();
-				$("#contentDPSheader").html("");
 				$("#contentDPSheader").append("<span style=\"height:12px; width:50px; float:left; text-align:left; border-left:4px solid #FA0; color:#FA0;\">DPS Data</span>");
 				for(var i in displayDPSRows)
 				{
 					$("#contentDPSheader").append("<span style=\"width:" + displayDPSRows[i].width + ";\">" + displayDPSRows[i].name + "</span>");
 				}
-
-				$("#contentHPSheader").show();
-				$("#contentHPSheader").html("");
 				$("#contentHPSheader").append("<span style=\"height:12px; width:50px; float:left; text-align:left; border-left:4px solid #FA0; color:#FA0;\">HPS Data</span>");
 				for(var i in displayHPSRows)
 				{
@@ -118,7 +121,7 @@
 					$(".cme").css("display", "inline-block");
 					setTimeout(function()
 					{
-						Chrysoberyl.takeScreenShot();
+						_.takeScreenShot();
 					}, 200);
 					setTimeout(function()
 					{
@@ -137,7 +140,7 @@
 
 				$("#STOP").click(function()
 				{
-					Chrysoberyl.endEncounter();
+					_.endEncounter();
 					$("#cutEncounterMsg").fadeIn(300);
 					setTimeout(function(){ $("#cutEncounterMsg").fadeOut(300); }, 1500);
 				});

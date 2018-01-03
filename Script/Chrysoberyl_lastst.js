@@ -594,9 +594,26 @@
 				console.error(ex);
 			}
 		};
-	
-		this.qs = function(name)
+
+		this.html = function(name, str)
 		{
+			if(str == undefined)
+			{
+				return doc.querySelector(name);
+			}
+			else
+			{
+				doc.querySelector(name).innerHTML = str;
+			}
+		}
+	
+		this.q = function(name)
+		{
+			if(name.indexOf("#") == 0)
+			{
+				return doc.querySelector(name);
+			}
+
 			if (doc.querySelectorAll) 
 			{
 				return doc.querySelectorAll(name);
@@ -730,4 +747,5 @@
 		}
 	};
 	window.Chrysoberyl = new Chrysoberyl();
+	window._ = window.Chrysoberyl;
 })(document);

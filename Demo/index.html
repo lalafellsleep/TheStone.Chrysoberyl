@@ -21,7 +21,7 @@
 
 			function onOverlayDataUpdate(e)
 			{
-				console.profile("render");
+				console.profile("Chrysoberyl Renderer");
 				if(!show)
 				{
 					$("#contentDPSheader").show();
@@ -40,13 +40,8 @@
 				{
 					hpshtml += "<span style=\"width:" + displayHPSRows[i].width + ";\">" + displayHPSRows[i].name + "</span>";
 				}
-
-				_.html("#contentDPSheader", "");
-				_.html("#contentHPSheader", "");
-				_.html("#encounter_name", e.Encounter.title);
-				_.html("#duration", e.duration);
-				_.html("#RDPS", e.Encounter.ENCDPS);
-				_.html("#RHPS", e.Encounter.ENCHPS);
+				
+				_.html("#burnofsource", '<div id="encounter_name">' + e.Encounter.title + '</div><div id="duration">' + e.duration + '</div><div id="RDPS">' + e.Encounter.ENCDPS + '</div><div id="RHPS">' + e.Encounter.ENCHPS + '</div>');
 				_.html("#contentDPSheader", dpshtml);
 				_.html("#contentHPSheader", hpshtml);
 
@@ -289,10 +284,12 @@
 	<body>
 		<div id="captureElement">
 			<div id="titlebar">
-				<div id="encounter_name">No Encounter Data</div>
-				<div id="duration">00:00</div>
-				<div id="RDPS">0</div>
-				<div id="RHPS">0</div>
+				<div id="burnofsource">
+					<div id="encounter_name">No Encounter Data</div>
+					<div id="duration">00:00</div>
+					<div id="RDPS">0</div>
+					<div id="RHPS">0</div>
+				</div>
 				<div id="STOP"></div>
 				<div id="Capture"></div>
 			</div>

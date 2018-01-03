@@ -730,7 +730,7 @@
 		switch(overlayType)
 		{
 			case 1:
-				document.addEventListener('onOverlayDataUpdate', overlaydata);
+				document.addEventListener('onOverlayDataUpdate', this.overlaydata);
 			break;
 			case 0:
 			case 2:

@@ -29,31 +29,38 @@
 					show = !0;
 				}
 
+				var dpshtml = "<span style=\"height:12px; width:50px; float:left; text-align:left; border-left:4px solid #FA0; color:#FA0;\">DPS Data</span>";
+				for(var i in displayDPSRows)
+				{
+					dpshtml += "<span style=\"width:" + displayDPSRows[i].width + ";\">" + displayDPSRows[i].name + "</span>";
+				}
+
+				var hpshtml = "<span style=\"height:12px; width:50px; float:left; text-align:left; border-left:4px solid #FA0; color:#FA0;\">HPS Data</span>";
+				for(var i in displayHPSRows)
+				{
+					hpshtml += "<span style=\"width:" + displayHPSRows[i].width + ";\">" + displayHPSRows[i].name + "</span>";
+				}
+
 				_.html("#contentDPSheader", "");
 				_.html("#contentHPSheader", "");
 				_.html("#encounter_name", e.Encounter.title);
 				_.html("#duration", e.duration);
 				_.html("#RDPS", e.Encounter.ENCDPS);
 				_.html("#RHPS", e.Encounter.ENCHPS);
-
-				$("#contentDPSheader").append("<span style=\"height:12px; width:50px; float:left; text-align:left; border-left:4px solid #FA0; color:#FA0;\">DPS Data</span>");
-				for(var i in displayDPSRows)
-				{
-					$("#contentDPSheader").append("<span style=\"width:" + displayDPSRows[i].width + ";\">" + displayDPSRows[i].name + "</span>");
-				}
-				$("#contentHPSheader").append("<span style=\"height:12px; width:50px; float:left; text-align:left; border-left:4px solid #FA0; color:#FA0;\">HPS Data</span>");
-				for(var i in displayHPSRows)
-				{
-					$("#contentHPSheader").append("<span style=\"width:" + displayHPSRows[i].width + ";\">" + displayHPSRows[i].name + "</span>");
-				}
+				_.html("#contentDPSheader", dpshtml);
+				_.html("#contentHPSheader", hpshtml);
 
 				var height = 19;
 
-				var snapshots = {"encdps":{"data":e.getSnapShot("encdps"), "element":"#contentDPS", "rows": displayDPSRows}, 
-				"enchps":{"data":e.getSnapShot("enchps"), "element":"#contentHPS", "rows":displayHPSRows}};
+				var snapshots = {
+					"encdps":{"data":e.getSnapShot("encdps"), "element":"#contentDPS", "rows": displayDPSRows}, 
+					"enchps":{"data":e.getSnapShot("enchps"), "element":"#contentHPS", "rows": displayHPSRows}
+				};
+
 				for(var v in snapshots)
 				{
-					$(snapshots[v].element + ">div").each(function()
+					var el = snapshots[v].element;
+					$(el + ">div").each(function()
 					{
 						for(var i in snapshots[v].data.desc)
 						{
@@ -63,18 +70,20 @@
 					});
 
 					var idx = 0;
+
 					for(var i in snapshots[v].data.desc)
 					{
 						var combat = e.getCombatantByDisplayName(snapshots[v].data.desc[i].displayName);
 						if(combat.isPet) continue;
 						if(v == "enchps" && e.displayHPS.indexOf(combat.Job) == -1) continue;
 
-						if( $(snapshots[v].element + ">div[data-name=\"" + combat.displayName + "\"]").length == 0)
+						if( $(el + ">div[data-name=\"" + combat.displayName + "\"]").length == 0)
 						{
-							$(snapshots[v].element).append("<div data-name=\"" + combat.displayName + "\" data-job=\"" + combat.Class + "\" data-role=\"" + combat.role + "\"><div class='data'></div><div class='bar'><div class='pet'></div></div></div>");
+							$(el).append("<div data-name=\"" + combat.displayName + "\" data-job=\"" + combat.Class + "\" data-role=\"" + combat.role + "\"><div class='data'></div><div class='bar'><div class='pet'></div></div></div>");
 						}
 						
-						var $person = $(snapshots[v].element + ">div[data-name=\"" + combat.displayName + "\"]");
+						var $person = $(el + ">div[data-name=\"" + combat.displayName + "\"]");
+						var selector = el + ">div[data-name=\"" + combat.displayName + "\"]";
 						var me = "";
 
 						$person.attr("data-job", combat.Class);
@@ -88,22 +97,18 @@
 						if(snapshots[v].data.maxValue == 0)
 							snapshots[v].data.maxValue = 1;
 
-						$person.find(".bar").css("width", Math.round(combat.get(snapshots[v].data.sortkey) / snapshots[v].data.maxValue * 100) + "%");
-						$person.find(".bar>.pet").css("width", Math.round(combat.getpet(snapshots[v].data.sortkey) / combat.get(snapshots[v].data.sortkey) * 100) + "%");
-	
+						$(selector + ">.bar").css("width", Math.round(combat.get(snapshots[v].data.sortkey) / snapshots[v].data.maxValue * 100) + "%");
+						$(selector + ">.bar>.pet").css("width", Math.round(combat.getpet(snapshots[v].data.sortkey) / combat.get(snapshots[v].data.sortkey) * 100) + "%");
 						$person.css("top", idx++ * height + "px");
-	
-						$person.find(".data").html("");
-						$person.find(".data").append("<span style=\"float:left;\" class=\"JOB " + combat.Job + me +" cname\">" + combat.name + "</span>");
-	
+
+						var html = "<span style=\"float:left;\" class=\"JOB " + combat.Job + me +" cname\">" + combat.name + "</span>";
 						for(var i in snapshots[v].rows)
 						{
 							var before = "";
 							if(i.indexOf("%") > -1) before = "%";
-	
-							var html = "<span style=\"width:" + snapshots[v].rows[i].width + "px;\">" + combat.get(i).toFixed(0) + before + "</span>";
-							$person.find(".data").append(html);
+							html += "<span style=\"width:" + snapshots[v].rows[i].width + "px;\">" + combat.get(i).toFixed(0) + before + "</span>";
 						}
+						$(selector + ">.data").html(html);
 					}
 					$(snapshots[v].element).css("height", (idx * height) + "px");
 				}

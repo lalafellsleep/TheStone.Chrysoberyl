@@ -4,7 +4,7 @@
 		<script src="../script/chrysoberyl_lastst.js"></script>
 		<script src="js/html2canvas.min.js"></script>
 		<script src="js/jquery-3.2.1.min.js" type="text/javascript"></script>
-		<title>Chrysoberyl Demo Overlay</title>
+		<title>Cat's Eye: Chrysoberyl Demo Overlay</title>
 		<script>
 			var displayDPSRows = {
 				"encdps":{"width":40, "name":"DPS"},
@@ -12,6 +12,7 @@
 				"DirectHit%":{"width":40, "name":"Dir%"},
 				"CritDirectHit%":{"width":40, "name":"CrD%"}
 			};
+			
 			var displayHPSRows = {
 				"enchps":{"width":40, "name":"HPS"},
 				"overHeal%":{"width":40, "name":"OvH%"}
@@ -27,15 +28,17 @@
 				$("#RDPS").html(e.Encounter.ENCDPS);
 				$("#RHPS").html(e.Encounter.ENCHPS);
 
+				$("#contentDPSheader").show();
 				$("#contentDPSheader").html("");
-				$("#contentDPSheader").append("<span style=\"height:12px; width:50px; float:left; text-align:left; border-left:4px solid #FA0;\">DPS Data</span>");
+				$("#contentDPSheader").append("<span style=\"height:12px; width:50px; float:left; text-align:left; border-left:4px solid #FA0; color:#FA0;\">DPS Data</span>");
 				for(var i in displayDPSRows)
 				{
 					$("#contentDPSheader").append("<span style=\"width:" + displayDPSRows[i].width + ";\">" + displayDPSRows[i].name + "</span>");
 				}
 
+				$("#contentHPSheader").show();
 				$("#contentHPSheader").html("");
-				$("#contentHPSheader").append("<span style=\"height:12px; width:50px; float:left; text-align:left; border-left:4px solid #FA0;\">HPS Data</span>");
+				$("#contentHPSheader").append("<span style=\"height:12px; width:50px; float:left; text-align:left; border-left:4px solid #FA0; color:#FA0;\">HPS Data</span>");
 				for(var i in displayHPSRows)
 				{
 					$("#contentHPSheader").append("<span style=\"width:" + displayHPSRows[i].width + ";\">" + displayHPSRows[i].name + "</span>");
@@ -67,14 +70,20 @@
 						{
 							$(snapshots[v].element).append("<div data-name=\"" + combat.displayName + "\" data-job=\"" + combat.Class + "\" data-role=\"" + combat.role + "\"><div class='data'></div><div class='bar'><div class='pet'></div></div></div>");
 						}
-	
+						
 						var $person = $(snapshots[v].element + ">div[data-name=\"" + combat.displayName + "\"]");
 						var me = "";
+
+						$person.attr("data-job", combat.Class);
+						$person.attr("data-role", combat.role);
 
 						if(combat.name == "YOU")
 						{
 							me = " cme";
 						}
+
+						if(snapshots[v].data.maxValue == 0)
+							snapshots[v].data.maxValue = 1;
 
 						$person.find(".bar").css("width", Math.round(combat.get(snapshots[v].data.sortkey) / snapshots[v].data.maxValue * 100) + "%");
 						$person.find(".bar>.pet").css("width", Math.round(combat.getpet(snapshots[v].data.sortkey) / combat.get(snapshots[v].data.sortkey) * 100) + "%");
@@ -143,7 +152,7 @@
 			::-webkit-scrollbar-track {background:rgba(255,255,255,.1); border-radius: 3px;}
 			::-webkit-scrollbar-thumb {border-radius: 3px; background: rgba(255,255,255,0.5);}
 			::-webkit-scrollbar-thumb:window-inactive {background: rgba(255,255,255,0.25);}
-			#titlebar {background:rgba(0,0,0,0.8); color:#FFF; position:fixed; left:0px; top:0px; right:0px; height:42px;}
+			#titlebar {background:rgba(0,0,0,0.8); color:#FFF; position:fixed; left:0px; top:0px; right:0px; height:42px; border-left:4px solid #333;}
 
 			#resizer {position:fixed; border:5px solid rgba(255,192,0,.25); border-left-color:transparent; border-top-color:transparent; right:0px; bottom:0px;}
 			#content {position:fixed; left:0px; top:43px; bottom:0px; right:0px; overflow:auto;}
@@ -185,7 +194,7 @@
 			#contentHPS>div>.data>.JOB {padding-left:24px;}
 
 			#contentDPS>div>.bar::after,
-			#contentHPS>div>.bar::after {content:" "; left:0px; width:4px; height:19px; position:absolute; background:#888; box-shadow:0px 0px 2px #000;}
+			#contentHPS>div>.bar::after {content:" "; left:0px; width:4px; height:19px; position:absolute; background:#888; box-shadow:0px 0px 2px #000; z-index:5;}
 			#contentDPS>div>.bar::before,
 			#contentHPS>div>.bar::before {content:" "; left:4px; width:19px; height:19px; position:absolute; background-size:190px auto; background-position:-171px -76px; background-image:url(img/icons.png); -webkit-filter:drop-shadow(0px 0px 1px #000);}
 
@@ -280,9 +289,9 @@
 				<div id="Capture"></div>
 			</div>
 			<div id="content">
-				<div id="contentDPSheader"></div>
+				<div id="contentDPSheader" style="display:none;"></div>
 				<div id="contentDPS"></div>
-				<div id="contentHPSheader"></div>
+				<div id="contentHPSheader" style="display:none;"></div>
 				<div id="contentHPS"></div>
 			</div>
 		</div>

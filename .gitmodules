@@ -1,8 +1,0 @@
-[submodule "Overlays/Railen"]
-	path = Overlays/Railen
-	branch = master
-	url = https://github.com/laiglinne-ff/chrysoberyl.Railen.git
-[submodule "Overlays/Cat_s_Eye"]
-	path = Overlays/Cat_s_Eye
-	branch = master
-	url = https://github.com/laiglinne-ff/chrysoberyl.Cat_s_Eye.git

@@ -1,3 +1,6 @@
 [submodule "Overlays/Cat_s_Eye"]
 	path = Overlays/Cat_s_Eye
 	url = https://github.com/laiglinne-ff/chrysoberyl.Cat_s_Eye.git
+[submodule "Overlays/MaxhitRanking"]
+	path = Overlays/MaxhitRanking
+	url = https://github.com/laiglinne-ff/chrysoberyl.MaxhitRanking.git

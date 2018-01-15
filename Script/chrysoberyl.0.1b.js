@@ -92,7 +92,22 @@
 				this.close();
 			this.activate = true;
 			var This = this;
-			this.websocket = new WebSocket(this.url);
+			try
+			{
+				this.websocket = new WebSocket(this.url);
+			}
+			catch(ex)
+			{
+				try
+				{
+					this.websocket = new WebSocket(this.url.replace("ws://", "wss://"));
+				}
+				catch(ex)
+				{
+					console.error("unable init websocket...");
+					return;
+				}
+			}
 			this.websocket.onopen = function(evt) {This.onopen(evt);};
 			this.websocket.onmessage = function(evt) {This.onmessage(evt);};
 			this.websocket.onclose = function(evt) {This.onclose(evt);};

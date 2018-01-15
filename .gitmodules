@@ -1,3 +1,6 @@
 [submodule "Overlays/Cat_s_Eye"]
 	path = Overlays/Cat_s_Eye
 	url = https://github.com/laiglinne-ff/chrysoberyl.Cat_s_Eye.git
+[submodule "Overlays/Railen"]
+	path = Overlays/Railen
+	url = https://github.com/laiglinne-ff/chrysoberyl.Railen.git

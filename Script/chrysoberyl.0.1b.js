@@ -92,22 +92,7 @@
 				this.close();
 			this.activate = true;
 			var This = this;
-			try
-			{
-				this.websocket = new WebSocket(this.url);
-			}
-			catch(ex)
-			{
-				try
-				{
-					this.websocket = new WebSocket(this.url.replace("ws://", "wss://"));
-				}
-				catch(ex)
-				{
-					console.error("unable init websocket...");
-					return;
-				}
-			}
+			this.websocket = new WebSocket(this.url);
 			this.websocket.onopen = function(evt) {This.onopen(evt);};
 			this.websocket.onmessage = function(evt) {This.onmessage(evt);};
 			this.websocket.onclose = function(evt) {This.onclose(evt);};
@@ -729,6 +714,8 @@
 			case 2:
 				try
 				{
+					if(location.href.indexOf("https://") > -1)
+						this.host_port = this.host_port.replace("ws://", "wss://");
 					this.ws = new ACTWebSocketConnect(this, this.host_port);
 					this.ws.connect();
 				}
